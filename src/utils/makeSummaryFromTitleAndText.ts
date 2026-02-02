@@ -1,7 +1,5 @@
 /* * */
 
-/* * */
-
 export function makeSummaryFromTitleAndText(args: { html: string, title: string }): string {
 	//
 

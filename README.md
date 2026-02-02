@@ -13,7 +13,7 @@ Import WordPress news into Payload CMS format. Fetches news from a WordPress API
 ## Prerequisites
 
 - Node.js 18+
-- A WordPress API that returns news items with `content`, `title`, `cover_image_src`, `publish_date`
+- A WordPress Rest API that returns news items
 - Payload CMS instance (optional, for image uploads)
 
 ## Installation
