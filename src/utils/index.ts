@@ -1,6 +1,7 @@
 export * from './applyFormat';
 export * from './asElement';
 export * from './clampInt';
+export * from './createNewsInPayload';
 export * from './countVisualBreaksFromWhitespace';
 export * from './cssLengthToAproxPx';
 export * from './fetchNewsImages';

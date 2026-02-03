@@ -1,5 +1,8 @@
 # wp-to-payload
 
+**STILL IN ACTIVE DEVELOPMENT - CURRENT BUILD DOES NOT 100%**
+
+
 Import WordPress news into Payload CMS format. Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, optionally uploads them to Payload, and exports each item as a JSON file ready for import.
 
 ## What it does
@@ -8,13 +11,25 @@ Import WordPress news into Payload CMS format. Fetches news from a WordPress API
 2. **Converts** HTML content to Lexical format (headings, paragraphs, lists, links, mentions, etc.)
 3. **Downloads** all images (cover + inline) to `output/images/`
 4. **Uploads** images to Payload CMS media collection (optional)
-5. **Exports** each news item as a `.txt` file (JSON) with `body`, `featured_image`, `summary`, `title`, `publishedAt`, `updatedAt`
+5. **Imports** each news item into Payload CMS (optional)
+6. **Exports** each news item as a `.txt` file (JSON) with `body`, `featured_image`, `summary`, `title`, `publishedAt`, `updatedAt`
 
 ## Prerequisites
 
 - Node.js 18+
 - A WordPress Rest API that returns news items
-- Payload CMS instance (optional, for image uploads)
+- Payload CMS instance (optional, for image uploads and news import)
+
+## Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `WP_NEWS_URL` | WordPress API URL (default: `https://carrismetropolitana.pt/api/news`) |
+| `PAYLOAD_URL` | Payload API base URL (default: `http://localhost:49001`) |
+| `PAYLOAD_API_PATH` | Payload API path (default: `/admin/api`) |
+| `PAYLOAD_API_KEY` | API key for Payload (from Admin → Users → your user → API Key) |
+| `PAYLOAD_AUTH_COLLECTION_SLUG` | Auth collection slug for API key (default: `users`) |
+| `PAYLOAD_NEWS_SLUG` | News collection slug in Payload (default: `news`) |
 
 ## Installation
 

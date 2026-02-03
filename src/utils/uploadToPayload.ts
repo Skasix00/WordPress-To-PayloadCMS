@@ -10,6 +10,14 @@ import process from 'node:process';
 
 const PAYLOAD_URL = process.env.PAYLOAD_URL ?? 'http://localhost:49001';
 
+export function payloadAuthHeader(): string | undefined {
+	const apiKey = process.env.PAYLOAD_API_KEY;
+	if (!apiKey) return undefined;
+	// Payload API key format: "users API-Key <key>" (not Bearer)
+	const slug = process.env.PAYLOAD_AUTH_COLLECTION_SLUG ?? 'users';
+	return `${slug} API-Key ${apiKey}`;
+}
+
 export function payloadMediaUrl(mediaId: string): string {
 	return `${PAYLOAD_URL}/admin/api/media/${mediaId}?depth=2&draft=false&locale=undefined&trash=false`;
 }
@@ -40,9 +48,9 @@ export async function uploadToPayload(
 		const form = new FormData();
 		const file = new File([new Uint8Array(buffer)], filename, { type: contentType });
 		form.append('file', file);
-		const apiKey = process.env.PAYLOAD_API_KEY;
 		const headers: Record<string, string> = {};
-		if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+		const auth = payloadAuthHeader();
+		if (auth) headers['Authorization'] = auth;
 		const base = PAYLOAD_URL.replace(/\/$/, '');
 		const apiPath = process.env.PAYLOAD_API_PATH ?? '/admin/api';
 		const url = `${base}${apiPath}/media`;

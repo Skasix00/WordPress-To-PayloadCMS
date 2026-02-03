@@ -1,7 +1,7 @@
 /* * */
 
 import { htmlToLexical } from '@/html-to-lexical';
-import { createLogger, fetchNewsImages, fetchWordpressNews, isoNow } from '@/utils';
+import { createLogger, createNewsInPayload, fetchNewsImages, fetchWordpressNews, isoNow } from '@/utils';
 import { } from '@/utils/isNow';
 import { } from '@/utils/logger';
 import { makeSummaryFromTitleAndText } from '@/utils/makeSummaryFromTitleAndText';
@@ -87,20 +87,39 @@ async function run() {
 	// D. Fetch images, upload to Payload, then write files
 
 	log.section('News images → output/images (+ Payload upload)');
-	const { saved: savedImages, urlToPayloadMedia } = await fetchNewsImages({
-		limit: 1,
+	const { saved: savedImages, urlToPayloadMedia, urlToPayloadMediaId } = await fetchNewsImages({
 		log,
 		outputDir,
 		urls: Array.from(imageUrls),
 	});
 	log('info', 'images saved', { count: savedImages.length });
 
+	//
+	// E. Write files and import news into Payload
+
+	log.section('News → output files + Payload import');
 	for (const { coverUrl, item, out } of pendingWrites) {
 		const itemLog = createLogger({ debug: process.env.DEBUG === '1', prefix: `news:${item._id}` });
-		out.featured_image = (coverUrl && urlToPayloadMedia[coverUrl]) ?? item.cover_image_src ?? null;
+		const featuredImageUrl = coverUrl && urlToPayloadMedia[coverUrl];
+		const featuredImageId = coverUrl ? urlToPayloadMediaId[coverUrl] : undefined;
+		out.featured_image = featuredImageUrl ?? item.cover_image_src ?? null;
+
 		const filename = path.join(outputDir, `news-${item._id}-${safeFilePart(item.title)}.txt`);
 		await writeFile(filename, JSON.stringify(out, null, '\t'), 'utf8');
 		itemLog('info', 'saved', { filename });
+
+		const { ok } = await createNewsInPayload(
+			{
+				body: out.body,
+				featured_image: featuredImageId ?? null,
+				publishedAt: out.publishedAt as string,
+				summary: out.summary as string,
+				title: out.title as string,
+				updatedAt: out.updatedAt as string,
+			},
+			itemLog,
+		);
+		if (ok) itemLog('info', 'imported to Payload');
 	}
 
 	log.section('Finished');
