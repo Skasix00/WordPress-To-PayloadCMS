@@ -17,19 +17,8 @@ Import WordPress news into Payload CMS format. Fetches news from a WordPress API
 ## Prerequisites
 
 - Node.js 18+
-- A WordPress Rest API that returns news items
-- Payload CMS instance (optional, for image uploads and news import)
-
-## Environment variables
-
-| Variable | Description |
-|----------|-------------|
-| `WP_NEWS_URL` | WordPress API URL (default: `https://carrismetropolitana.pt/api/news`) |
-| `PAYLOAD_URL` | Payload API base URL (default: `http://localhost:49001`) |
-| `PAYLOAD_API_PATH` | Payload API path (default: `/admin/api`) |
-| `PAYLOAD_API_KEY` | API key for Payload (from Admin → Users → your user → API Key) |
-| `PAYLOAD_AUTH_COLLECTION_SLUG` | Auth collection slug for API key (default: `users`) |
-| `PAYLOAD_NEWS_SLUG` | News collection slug in Payload (default: `news`) |
+- A WordPress Rest API
+- Payload CMS instance
 
 ## Installation
 
