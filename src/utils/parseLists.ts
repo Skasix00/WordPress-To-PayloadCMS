@@ -7,7 +7,7 @@ import { asElement, hasMeaningfulInline, parseInline } from '@/utils';
 
 /* * */
 
-export function parseList(el: DomElement, listType: 'bullet' | 'number', tag: 'ol' | 'ul', log?: LogFn): LexicalNode {
+export function parseList(el: DomElement, listType: 'bullet' | 'number', tag: 'ol' | 'ul', log?: LogFn, baseOrigin = ''): LexicalNode {
 //
 
 	//
@@ -33,7 +33,7 @@ export function parseList(el: DomElement, listType: 'bullet' | 'number', tag: 'o
 				if (childTag === 'ol' || childTag === 'ul') continue;
 			}
 
-			inline.push(...parseInline(child, 0, log));
+			inline.push(...parseInline(child, 0, log, baseOrigin));
 		}
 
 		const children = hasMeaningfulInline(inline) ? inline : [textNode('', 0)];
@@ -43,8 +43,8 @@ export function parseList(el: DomElement, listType: 'bullet' | 'number', tag: 'o
 			if (!childEl) continue;
 
 			const childTag = childEl.tagName.toLowerCase();
-			if (childTag === 'ol') children.push(parseList(childEl, 'number', 'ol', log));
-			if (childTag === 'ul') children.push(parseList(childEl, 'bullet', 'ul', log));
+			if (childTag === 'ol') children.push(parseList(childEl, 'number', 'ol', log, baseOrigin));
+			if (childTag === 'ul') children.push(parseList(childEl, 'bullet', 'ul', log, baseOrigin));
 		}
 
 		items.push(listItemNode(children, value));

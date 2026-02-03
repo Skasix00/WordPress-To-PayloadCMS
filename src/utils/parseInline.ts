@@ -3,11 +3,11 @@
 import { linebreakNode, linkNode, mentionNode } from '@/components';
 import { NODE_TYPE, TEXT_FORMAT } from '@/config/consts';
 import { LexicalNode, LogFn } from '@/types';
-import { applyFormat, asElement, flattenInlineChildren, getNodeType, hasTextContent, normalizeText, parseLineMentionFromText, parseTextIntoNodesWithMentions } from '@/utils';
+import { applyFormat, asElement, flattenInlineChildren, getNodeType, hasTextContent, normalizeText, parseLineMentionFromText, parseTextIntoNodesWithMentions, resolveUrl } from '@/utils';
 
 /* * */
 
-export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn): LexicalNode[] {
+export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, baseOrigin = ''): LexicalNode[] {
 	//
 
 	//
@@ -33,31 +33,31 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn): Le
 	}
 
 	if (tag === 'strong' || tag === 'b') {
-		const out = flattenInlineChildren(el, inheritedFormat, log);
+		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		applyFormat(out, TEXT_FORMAT.BOLD);
 		return out;
 	}
 
 	if (tag === 'em' || tag === 'i') {
-		const out = flattenInlineChildren(el, inheritedFormat, log);
+		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		applyFormat(out, TEXT_FORMAT.ITALIC);
 		return out;
 	}
 
 	if (tag === 'u') {
-		const out = flattenInlineChildren(el, inheritedFormat, log);
+		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		applyFormat(out, TEXT_FORMAT.UNDERLINE);
 		return out;
 	}
 
 	if (tag === 's' || tag === 'del' || tag === 'strike') {
-		const out = flattenInlineChildren(el, inheritedFormat, log);
+		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		applyFormat(out, TEXT_FORMAT.STRIKETHROUGH);
 		return out;
 	}
 
 	if (tag === 'code') {
-		const out = flattenInlineChildren(el, inheritedFormat, log);
+		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		applyFormat(out, TEXT_FORMAT.CODE);
 		return out;
 	}
@@ -73,14 +73,29 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn): Le
 		}
 
 		const href = el.getAttribute('href') ?? '';
-		if (!href) return flattenInlineChildren(el, inheritedFormat, log);
+		if (!href?.trim()) return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 
-		const children = flattenInlineChildren(el, inheritedFormat, log);
-		return [linkNode(href, children)];
+		const resolvedUrl = resolveUrl(href.trim(), baseOrigin);
+
+		const trimmedResolved = resolvedUrl?.trim() ?? '';
+		if (!trimmedResolved || !/^https?:\/\//i.test(trimmedResolved)) {
+			log?.('debug', 'inline: <a> skipped (invalid URL)', { href, resolvedUrl: trimmedResolved });
+			return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+		}
+
+		try {
+			new URL(trimmedResolved);
+		} catch {
+			log?.('debug', 'inline: <a> skipped (URL parse error)', { href, resolvedUrl: trimmedResolved });
+			return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+		}
+		log?.('debug', 'inline: <a> -> text (Payload does not support inline links)', { href, resolvedUrl: trimmedResolved, text: linkText });
+
+		return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 	}
 
 	//
 	// C. Return
 
-	return flattenInlineChildren(el, inheritedFormat, log);
+	return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 }

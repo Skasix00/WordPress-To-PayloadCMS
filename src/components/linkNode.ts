@@ -7,7 +7,17 @@ export function linkNode(url: string, children: LexicalNode[]): LexicalNode {
 	//
 
 	//
-	// A. Return
+	// A. Setup Variables
+
+	const trimmedUrl = url?.trim() ?? '';
+	const validUrl = trimmedUrl && /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : '';
+
+	if (!validUrl) {
+		throw new Error(`linkNode: Invalid or empty URL provided: "${url}"`);
+	}
+
+	//
+	// B. Return
 
 	return {
 		children,
@@ -18,7 +28,7 @@ export function linkNode(url: string, children: LexicalNode[]): LexicalNode {
 		target: null,
 		title: null,
 		type: 'link',
-		url: url ? 'https://www.carrismetropolitana.pt' : url,
+		url: validUrl,
 		version: 1,
 	};
 

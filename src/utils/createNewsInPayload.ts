@@ -36,7 +36,7 @@ export async function createNewsInPayload(
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json',
 		};
-		const auth = await payloadAuthHeader();
+		const auth = payloadAuthHeader();
 		if (auth) headers['Authorization'] = auth;
 
 		const base = PAYLOAD_URL.replace(/\/$/, '');

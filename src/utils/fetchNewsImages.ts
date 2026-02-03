@@ -30,6 +30,7 @@ export interface FetchNewsImagesOptions {
 export interface FetchNewsImagesResult {
 	saved: string[]
 	urlToPayloadMedia: Record<string, string>
+	urlToPayloadMediaDoc: Record<string, Record<string, unknown>>
 	urlToPayloadMediaId: Record<string, string>
 }
 
@@ -41,6 +42,7 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 	const saved: string[] = [];
 	const urlToPayloadMedia: Record<string, string> = {};
 	const urlToPayloadMediaId: Record<string, string> = {};
+	const urlToPayloadMediaDoc: Record<string, Record<string, unknown>> = {};
 	const max = limit !== undefined ? Math.min(limit, urls.length) : urls.length;
 
 	for (let i = 0; i < max; i++) {
@@ -57,10 +59,12 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 			await writeFile(filepath, buffer);
 			saved.push(filepath);
 
-			const mediaId = await uploadToPayload(buffer, filename, type, log);
-			if (mediaId) {
+			const mediaDoc = await uploadToPayload(buffer, filename, type, log);
+			if (mediaDoc) {
+				const mediaId = (mediaDoc.id as string) ?? '';
 				urlToPayloadMedia[url] = payloadMediaUrl(mediaId);
 				urlToPayloadMediaId[url] = mediaId;
+				urlToPayloadMediaDoc[url] = mediaDoc;
 				log?.('info', 'fetchNewsImages: saved + Payload', { filename, mediaId, url });
 			} else {
 				urlToPayloadMedia[url] = imageUrlToPayloadMediaUrl(url);
@@ -71,5 +75,5 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 		}
 	}
 
-	return { saved, urlToPayloadMedia, urlToPayloadMediaId };
+	return { saved, urlToPayloadMedia, urlToPayloadMediaDoc, urlToPayloadMediaId };
 }

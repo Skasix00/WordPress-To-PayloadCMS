@@ -1,5 +1,6 @@
 /* * */
 
+import 'dotenv/config';
 import { htmlToLexical } from '@/html-to-lexical';
 import { createLogger, createNewsInPayload, fetchNewsImages, fetchWordpressNews, isoNow } from '@/utils';
 import { } from '@/utils/isNow';
@@ -27,22 +28,22 @@ async function run() {
 	//
 	// B. Fetch Data
 
+	const limitNews = process.env.LIMIT_NEWS ? parseInt(process.env.LIMIT_NEWS) : undefined;
+
 	log.section('WP → Payload (Lexical) Export (.txt)');
-	log('info', 'config', { outputDir, wpUrl });
+	log('info', 'config', { limitNews, outputDir, wpUrl });
 
 	const items = await fetchWordpressNews(wpUrl);
 	log('info', 'wp: fetched', { count: items.length });
 
-	//
-	// C. Transform Data (collect image URLs, build lexical)
-
 	const baseOrigin = new URL(wpUrl).origin;
-	const imageUrls = new Set<string>();
-	const pendingWrites: { coverUrl: null | string, item: (typeof items)[0], out: Record<string, unknown> }[] = [];
+	const itemsToProcess = items.slice(0, limitNews);
 
-	for (const item of items) {
+	//
+	// C. For each news: collect image URLs → upload to Payload → build lexical with media IDs → create news
+
+	for (const item of itemsToProcess) {
 		const itemLog = createLogger({ debug: process.env.DEBUG === '1', prefix: `news:${item._id}` });
-
 		itemLog.section(`News ${item._id}`);
 
 		const html = item.content ?? '';
@@ -50,6 +51,7 @@ async function run() {
 		const updatedAt = isoNow();
 		const summary = makeSummaryFromTitleAndText({ html, title: item.title });
 
+		const imageUrls = new Set<string>();
 		let coverUrl: null | string = null;
 		if (item.cover_image_src) {
 			coverUrl = item.cover_image_src.startsWith('http')
@@ -69,40 +71,35 @@ async function run() {
 			updatedAt,
 		});
 
-		const lexical = htmlToLexical(html, { baseOrigin, collectImageUrl: url => imageUrls.add(url), log: itemLog });
+		// Pass collectImageUrl to gather inline image URLs from HTML
+		htmlToLexical(html, { baseOrigin, collectImageUrl: url => imageUrls.add(url), log: itemLog });
 
+		// Upload images to Payload, get url → mediaId and mediaDoc maps
+		const urls = Array.from(imageUrls);
+		itemLog('info', 'uploading images', { count: urls.length, urls: urls.slice(0, 3) });
+		const { urlToPayloadMediaDoc, urlToPayloadMediaId } = await fetchNewsImages({
+			log: itemLog,
+			outputDir,
+			urls,
+		});
+
+		// Build lexical with urlToMediaDoc so inline images become Payload upload blocks
+		const lexical = htmlToLexical(html, {
+			baseOrigin,
+			collectImageUrl: url => imageUrls.add(url),
+			log: itemLog,
+			urlToMediaDoc: url => urlToPayloadMediaDoc[url],
+		});
+
+		const featuredImageId = coverUrl ? urlToPayloadMediaId[coverUrl] : null;
 		const out = {
 			body: lexical,
-			featured_image: item.cover_image_src ?? null,
+			featured_image: featuredImageId,
 			publishedAt,
 			summary,
 			title: item.title,
 			updatedAt,
 		};
-
-		pendingWrites.push({ coverUrl, item, out });
-	}
-
-	//
-	// D. Fetch images, upload to Payload, then write files
-
-	log.section('News images → output/images (+ Payload upload)');
-	const { saved: savedImages, urlToPayloadMedia, urlToPayloadMediaId } = await fetchNewsImages({
-		log,
-		outputDir,
-		urls: Array.from(imageUrls),
-	});
-	log('info', 'images saved', { count: savedImages.length });
-
-	//
-	// E. Write files and import news into Payload
-
-	log.section('News → output files + Payload import');
-	for (const { coverUrl, item, out } of pendingWrites) {
-		const itemLog = createLogger({ debug: process.env.DEBUG === '1', prefix: `news:${item._id}` });
-		const featuredImageUrl = coverUrl && urlToPayloadMedia[coverUrl];
-		const featuredImageId = coverUrl ? urlToPayloadMediaId[coverUrl] : undefined;
-		out.featured_image = featuredImageUrl ?? item.cover_image_src ?? null;
 
 		const filename = path.join(outputDir, `news-${item._id}-${safeFilePart(item.title)}.txt`);
 		await writeFile(filename, JSON.stringify(out, null, '\t'), 'utf8');
@@ -111,7 +108,7 @@ async function run() {
 		const { ok } = await createNewsInPayload(
 			{
 				body: out.body,
-				featured_image: featuredImageId ?? null,
+				featured_image: featuredImageId,
 				publishedAt: out.publishedAt as string,
 				summary: out.summary as string,
 				title: out.title as string,

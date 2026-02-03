@@ -2,6 +2,7 @@
 
 import type { LogFn } from '@/types';
 
+import { getPayloadAuthHeaderSync } from '@/config/consts';
 import { createLogger } from '@/utils/logger';
 import path from 'node:path';
 import process from 'node:process';
@@ -10,46 +11,8 @@ import process from 'node:process';
 
 const PAYLOAD_URL = process.env.PAYLOAD_URL ?? 'http://localhost:49001';
 
-let cachedJwt: null | string = null;
-
-/** Login with email/password to get JWT. Use PAYLOAD_EMAIL + PAYLOAD_PASSWORD as alternative to API key. */
-export async function payloadLogin(): Promise<null | string> {
-	const email = process.env.PAYLOAD_EMAIL;
-	const password = process.env.PAYLOAD_PASSWORD;
-	if (!email || !password) return null;
-	try {
-		const base = PAYLOAD_URL.replace(/\/$/, '');
-		const apiPath = process.env.PAYLOAD_API_PATH ?? '/admin/api';
-		const slug = process.env.PAYLOAD_AUTH_COLLECTION_SLUG ?? 'users';
-		const url = `${base}${apiPath}/${slug}/login`;
-		const res = await fetch(url, {
-			body: JSON.stringify({ email, password }),
-			headers: { 'Content-Type': 'application/json' },
-			method: 'POST',
-		});
-		if (!res.ok) return null;
-		const data = (await res.json()) as { token?: string };
-		return data.token ?? null;
-	} catch {
-		return null;
-	}
-}
-
-export async function payloadAuthHeader(): Promise<string | undefined> {
-	const apiKey = process.env.PAYLOAD_API_KEY;
-	if (apiKey) {
-		const authType = process.env.PAYLOAD_AUTH_TYPE ?? 'api-key';
-		if (authType === 'bearer') return `Bearer ${apiKey}`;
-		const slug = process.env.PAYLOAD_AUTH_COLLECTION_SLUG ?? 'users';
-		return `${slug} API-Key ${apiKey}`;
-	}
-	if (cachedJwt) return `Bearer ${cachedJwt}`;
-	const token = await payloadLogin();
-	if (token) {
-		cachedJwt = token;
-		return `Bearer ${token}`;
-	}
-	return undefined;
+export function payloadAuthHeader(): string | undefined {
+	return getPayloadAuthHeaderSync();
 }
 
 export function payloadMediaUrl(mediaId: string): string {
@@ -72,7 +35,7 @@ export async function uploadToPayload(
 	filename: string,
 	contentType: string,
 	log?: LogFn,
-): Promise<null | string> {
+): Promise<null | Record<string, unknown>> {
 	const uploadLog = log ?? createLogger({ debug: process.env.DEBUG === '1', prefix: 'uploadToPayload' });
 
 	const sizeMb = (buffer.length / 1024 / 1024).toFixed(2);
@@ -83,12 +46,19 @@ export async function uploadToPayload(
 		const file = new File([new Uint8Array(buffer)], filename, { type: contentType });
 		form.append('file', file);
 		const headers: Record<string, string> = {};
-		const auth = await payloadAuthHeader();
-		if (auth) headers['Authorization'] = auth;
+		const auth = payloadAuthHeader();
+		if (auth) {
+			headers['Authorization'] = auth;
+		} else {
+			uploadLog('warn', 'uploadToPayload: no auth header (PAYLOAD_API_KEY not set or .env not loaded)');
+		}
 		const base = PAYLOAD_URL.replace(/\/$/, '');
 		const apiPath = process.env.PAYLOAD_API_PATH ?? '/admin/api';
 		const url = `${base}${apiPath}/media`;
-		uploadLog('debug', 'uploadToPayload: POST', { url });
+		uploadLog('debug', 'uploadToPayload: POST', {
+			...(auth && { authHeader: `${auth.replace(/\s+\S+$/, ' ***')}` }),
+			url,
+		});
 
 		const res = await fetch(url, {
 			body: form,
@@ -102,8 +72,6 @@ export async function uploadToPayload(
 			const hints: string[] = [];
 			if (res.status === 403) {
 				hints.push('403 = access denied. Ensure PAYLOAD_API_KEY is set and the user has create access on media.');
-				hints.push('If using JWT: set PAYLOAD_AUTH_TYPE=bearer');
-				hints.push('If API path differs: try PAYLOAD_API_PATH=/api (some setups use /api not /admin/api)');
 			} else if (res.status === 500 && isHtml) {
 				hints.push('Try PAYLOAD_API_PATH=/admin/api or check server body size limit');
 			}
@@ -116,10 +84,11 @@ export async function uploadToPayload(
 			return null;
 		}
 
-		const data = (await res.json()) as { doc?: { id: string }, id?: string };
-		const id: null | string = data.doc?.id ?? data.id ?? null;
+		const data = (await res.json()) as { doc?: Record<string, unknown>, id?: string };
+		const doc = data.doc ?? (data.id ? { id: data.id } : null);
+		const id: null | string = doc ? (doc.id as string) ?? (data.id ?? null) : null;
 		uploadLog('info', 'uploadToPayload: success', { filename, mediaId: id });
-		return id;
+		return doc ? { id, ...doc } as Record<string, unknown> : null;
 	} catch (err) {
 		uploadLog('error', 'uploadToPayload: error', { err, filename });
 		return null;

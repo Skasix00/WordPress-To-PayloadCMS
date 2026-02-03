@@ -5,7 +5,7 @@ import { parseInline } from '@/utils/parseInline';
 
 /* * */
 
-export function flattenInlineChildren(el: DomElement, inheritedFormat: number, log?: LogFn): LexicalNode[] {
+export function flattenInlineChildren(el: DomElement, inheritedFormat: number, log?: LogFn, baseOrigin = ''): LexicalNode[] {
 	//
 
 	//
@@ -17,7 +17,7 @@ export function flattenInlineChildren(el: DomElement, inheritedFormat: number, l
 	// B. Transform Data
 
 	for (const child of Array.from(el.childNodes)) {
-		out.push(...parseInline(child, inheritedFormat, log));
+		out.push(...parseInline(child, inheritedFormat, log, baseOrigin));
 	}
 
 	//

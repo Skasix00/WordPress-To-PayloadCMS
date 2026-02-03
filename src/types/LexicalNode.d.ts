@@ -11,6 +11,7 @@ export interface LexicalNode {
 	mentionType?: string
 	mode?: 'normal'
 	rel?: string
+	relationTo?: string
 	start?: number
 	style?: string
 	tag?: string
@@ -19,6 +20,6 @@ export interface LexicalNode {
 	title?: null | string
 	type: string
 	url?: string
-	value?: number
+	value?: unknown
 	version: number
 }
