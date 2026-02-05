@@ -1,18 +1,16 @@
-# wp-to-payload
-
 **ACTIVE DEVELOPMENT**
 
 
-Import WordPress news into Payload CMS format. Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, optionally uploads them to Payload, and exports each item as a JSON file ready for import.
+Import WordPress news into Payload CMS lexical format. Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, optionally uploads them to Payload, and exports each item into a output folder.
 
 ## What it does
 
 1. **Fetches** news from a WordPress REST API
 2. **Converts** HTML content to Lexical format (headings, paragraphs, lists, links, mentions, etc.)
-3. **Downloads** all images (cover + inline) to `output/images/`
+3. **Downloads** all images to `output/images/`
 4. **Uploads** images to Payload CMS media collection (optional)
-5. **Imports** each news item into Payload CMS (optional)
-6. **Exports** each news item as a `.txt` file (JSON) with `body`, `featured_image`, `summary`, `title`, `publishedAt`, `updatedAt`
+5. **Imports** each news item into Payload CMS
+6. **Exports** each news item as a `.txt` that contains that news item lexical JSON
 
 ## Prerequisites
 
@@ -74,3 +72,5 @@ npm run build
 | `<a href="...">` | Link |
 | `<a>` (mention pattern) | Mention |
 | `@mention` in text | Mention |
+
+You need to provide your own .env variables, payload uses a key system for authentication, but you need to activate it first on yo own PayloadCMS instance.
