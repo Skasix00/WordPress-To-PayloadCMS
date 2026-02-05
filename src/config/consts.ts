@@ -21,16 +21,9 @@ export const TEXT_FORMAT = {
 // PAYLOAD AUTH
 
 export const PAYLOAD_AUTH = {
-	AUTH_COLLECTION_SLUG: process.env.PAYLOAD_AUTH_COLLECTION_SLUG ?? 'users',
-	AUTH_TYPE: process.env.PAYLOAD_AUTH_TYPE ?? 'api-key',
+	AUTH_COLLECTION_SLUG: 'users',
+	AUTH_TYPE: 'api-key',
 } as const;
-
-export function getPayloadAuthHeaderSync(): string | undefined {
-	const apiKey = process.env.PAYLOAD_API_KEY;
-	if (!apiKey) return undefined;
-	if (PAYLOAD_AUTH.AUTH_TYPE === 'bearer') return `Bearer ${apiKey}`;
-	return `${PAYLOAD_AUTH.AUTH_COLLECTION_SLUG} API-Key ${apiKey}`;
-}
 
 //
 // ANSI
