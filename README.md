@@ -73,4 +73,4 @@ npm run build
 | `<a>` (mention pattern) | Mention |
 | `@mention` in text | Mention |
 
-You need to provide your own .env variables, payload uses a key system for authentication, but you need to activate it first on yo own PayloadCMS instance.
+You need to provide your own .env variables, payload uses a key system for authentication, but you need to activate it first on your own PayloadCMS instance.
