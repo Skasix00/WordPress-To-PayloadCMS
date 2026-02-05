@@ -1,6 +1,6 @@
 export interface FetchNewsImagesOptions {
+	imagesDir: string
 	limit?: number
 	log?: LogFn
-	outputDir: string
 	urls: string[]
 }

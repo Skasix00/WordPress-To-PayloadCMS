@@ -10,7 +10,7 @@ export async function fetchWordPressNews(): Promise<WordPressNewsItem[]> {
 	//
 	// A. Setup Variables
 
-	const wpUrl = process.env.WORDPRESS_API_URL ?? 'https://placeholder.pt';
+	const wpUrl = process.env.WP_NEWS_URL;
 
 	//
 	// B. Fetch Data

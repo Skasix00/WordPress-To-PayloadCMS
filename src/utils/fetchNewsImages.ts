@@ -3,21 +3,24 @@
 import type { FetchNewsImagesOptions, FetchNewsImagesResult } from '@/types';
 
 import { processImage } from '@/utils';
-import { mkdir } from 'node:fs/promises';
-import path from 'node:path';
 
 /* * */
 
 export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<FetchNewsImagesResult> {
-	const { limit, log, outputDir, urls } = options;
-	const imagesDir = path.join(outputDir, 'images');
-	await mkdir(imagesDir, { recursive: true });
+	//
 
+	//
+	// A. Setup Variables
+
+	const { imagesDir, limit, log, urls } = options;
 	const saved: string[] = [];
 	const urlToPayloadMedia: Record<string, string> = {};
 	const urlToPayloadMediaId: Record<string, string> = {};
 	const urlToPayloadMediaDoc: Record<string, Record<string, unknown>> = {};
 	const max = limit !== undefined ? Math.min(limit, urls.length) : urls.length;
+
+	//
+	// B. Process Images
 
 	for (const [index, url] of urls.slice(0, max).entries()) {
 		if (!url) continue;
@@ -36,5 +39,10 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 		}
 	}
 
+	//
+	// C. Return
+
 	return { saved, urlToPayloadMedia, urlToPayloadMediaDoc, urlToPayloadMediaId };
+
+	//
 }

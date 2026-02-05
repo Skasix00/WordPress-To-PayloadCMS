@@ -1,3 +1,4 @@
+export * from './BlockHandlerContext';
 export * from './CreateNewsInPayloadResult';
 export * from './CreateNewsPayload';
 export * from './CssLength';
@@ -5,8 +6,10 @@ export * from './DomElement';
 export * from './DomTextNode';
 export * from './FetchNewsImageResult';
 export * from './FetchNewsImagesOptions';
+export * from './LevelConfig';
 export * from './LexicalNode';
 export * from './LogFn';
+export * from './Logger';
 export * from './LogLevel';
 export * from './ProcessedImage';
 export * from './UnknownRecord';

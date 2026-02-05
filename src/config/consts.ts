@@ -1,3 +1,9 @@
+/* * */
+
+import type { LevelConfig, LogLevel } from '@/types';
+
+/* * */
+
 // NODE_TYPE
 
 export const NODE_TYPE = {
@@ -42,3 +48,12 @@ export const ANSI = {
 } as const;
 
 //
+// LOGGER
+export const LEVEL_CONFIG: Record<LogLevel, LevelConfig> = {
+	debug: { color: ANSI.cyan, label: 'DEBUG' },
+	error: { color: ANSI.red, label: 'ERROR' },
+	info: { color: ANSI.green, label: 'INFO ' },
+	warn: { color: ANSI.yellow, label: 'WARN ' },
+};
+export const DIVIDER_WIDTH = 72;
+export const DIVIDER_LINE = '─'.repeat(DIVIDER_WIDTH);
