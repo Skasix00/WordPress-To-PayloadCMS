@@ -17,22 +17,21 @@ export function handleFigure(el: Element, ctx: BlockHandlerContext): LexicalNode
 
 	const { baseOrigin, collectImageUrl, log, urlToMediaDoc } = ctx;
 	const imgSrc = asElement(el.querySelector('img'))?.getAttribute('src');
-	const resolvedUrl = resolveUrl(imgSrc, baseOrigin);
-	const mediaDoc = urlToMediaDoc?.(resolvedUrl);
-	const mediaId = (mediaDoc.id as string) ?? '';
-	const videoSrc = asElement(el.querySelector('video'))?.getAttribute('src');
 
 	//
-	// B. Return
+	// B. Handle Image
 
 	if (imgSrc) {
+		const resolvedUrl = resolveUrl(imgSrc, baseOrigin);
 		collectImageUrl?.(resolvedUrl);
 
+		const mediaDoc = urlToMediaDoc?.(resolvedUrl);
 		if (!mediaDoc) {
 			log?.('info', 'block: <figure><img> skipped (no mediaDoc)', { src: imgSrc });
 			return [];
 		}
 
+		const mediaId = (mediaDoc.id as string) ?? '';
 		if (!mediaId) {
 			log?.('warn', 'block: <figure><img> skipped (no mediaId in mediaDoc)', { src: imgSrc });
 			return [];
@@ -42,14 +41,19 @@ export function handleFigure(el: Element, ctx: BlockHandlerContext): LexicalNode
 		return [payloadUploadNode(mediaId)];
 	}
 
+	//
+	// C. Handle Video
+
+	const videoSrc = asElement(el.querySelector('video'))?.getAttribute('src');
 	if (videoSrc) {
 		log?.('info', 'block: <figure><video> -> video block', { src: videoSrc });
 		return [payloadBlockNode({ blockName: '', blockType: 'video', caption: '', source: 'external', videoUrl: videoSrc })];
 	}
 
-	return null;
-
 	//
+	// D. Return
+
+	return null;
 }
 
 /* * */
