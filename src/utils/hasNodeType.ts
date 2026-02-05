@@ -2,7 +2,7 @@
 
 import type { UnknownRecord } from '@/types';
 
-import { isRecord } from '@/utils/isRecord';
+import { isRecord } from '@/utils';
 
 /* * */
 
