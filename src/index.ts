@@ -37,7 +37,7 @@ async function run() {
 	log('info', 'wp: fetched', { count: items.length });
 
 	const baseOrigin = new URL(wpUrl).origin;
-	const itemsToProcess = items.slice(0, limitNews);
+	const itemsToProcess = limitNews ? items.slice(0, limitNews) : items;
 
 	//
 	// C. For each news: collect image URLs → upload to Payload → build lexical with media IDs → create news

@@ -1,6 +1,6 @@
 # wp-to-payload
 
-**STILL IN ACTIVE DEVELOPMENT - CURRENT BUILD DOES NOT 100%**
+**ACTIVE DEVELOPMENT**
 
 
 Import WordPress news into Payload CMS format. Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, optionally uploads them to Payload, and exports each item as a JSON file ready for import.

@@ -1,4 +1,5 @@
 // NODE_TYPE
+
 export const NODE_TYPE = {
 	COMMENT: 8,
 	ELEMENT: 1,
@@ -18,20 +19,11 @@ export const TEXT_FORMAT = {
 
 //
 // PAYLOAD AUTH
-// https://payloadcms.com/docs/authentication/api-keys
-// Format: "{slug} API-Key {key}" (case-sensitive)
 
 export const PAYLOAD_AUTH = {
 	AUTH_COLLECTION_SLUG: process.env.PAYLOAD_AUTH_COLLECTION_SLUG ?? 'users',
 	AUTH_TYPE: process.env.PAYLOAD_AUTH_TYPE ?? 'api-key',
 } as const;
-
-/** Block slug for images in body. Must match BlocksFeature in Payload (e.g. 'image', 'upload', 'media'). */
-export const PAYLOAD_BODY_IMAGE_BLOCK_SLUG = process.env.PAYLOAD_BODY_IMAGE_BLOCK_SLUG ?? 'image';
-/** Upload field name inside the image block. Must match your block's upload field name. */
-export const PAYLOAD_BODY_IMAGE_BLOCK_FIELD = process.env.PAYLOAD_BODY_IMAGE_BLOCK_FIELD ?? 'image';
-/** Set to '1' to skip image blocks in body (use when Block image not found). Images still upload; inline blocks are skipped. */
-export const PAYLOAD_SKIP_BODY_IMAGE_BLOCKS = process.env.PAYLOAD_SKIP_BODY_IMAGE_BLOCKS === '1';
 
 export function getPayloadAuthHeaderSync(): string | undefined {
 	const apiKey = process.env.PAYLOAD_API_KEY;
