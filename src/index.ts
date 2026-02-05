@@ -39,7 +39,7 @@ async function run() {
 	const itemsToProcess = limitNews ? items.slice(0, limitNews) : items;
 
 	//
-	// C. Process Each News Item
+	// C. Transform Data
 
 	for (const item of itemsToProcess) {
 		const itemLog = createLogger({ debug, prefix: `news:${item._id}` });

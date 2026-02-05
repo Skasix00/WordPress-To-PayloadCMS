@@ -2,24 +2,17 @@
 
 import type { LogFn } from '@/types';
 
-import { getPayloadAuthHeaderSync } from '@/config/consts';
+import { getPayloadAuthHeaderSync } from '@/utils';
 import { createLogger } from '@/utils/logger';
 import path from 'node:path';
 import process from 'node:process';
 
 /* * */
 
-const PAYLOAD_URL = process.env.PAYLOAD_URL ?? 'http://localhost:49001';
-
-export function payloadAuthHeader(): string | undefined {
-	return getPayloadAuthHeaderSync();
-}
-
 export function payloadMediaUrl(mediaId: string): string {
-	return `${PAYLOAD_URL}/admin/api/media/${mediaId}?depth=2&draft=false&locale=undefined&trash=false`;
+	return `${process.env.PAYLOAD_URL}/admin/api/media/${mediaId}?depth=2&draft=false&locale=undefined&trash=false`;
 }
 
-/** Fallback when Payload upload is not used – uses path basename as id. */
 export function imageUrlToPayloadMediaUrl(url: string): string {
 	try {
 		const name = path.basename(new URL(url).pathname) || 'image';
@@ -30,29 +23,29 @@ export function imageUrlToPayloadMediaUrl(url: string): string {
 	}
 }
 
-export async function uploadToPayload(
-	buffer: Buffer,
-	filename: string,
-	contentType: string,
-	log?: LogFn,
-): Promise<null | Record<string, unknown>> {
+export async function uploadToPayload(buffer: Buffer, filename: string, contentType: string, log?: LogFn): Promise<null | Record<string, unknown>> {
+	//
+
+	//
+	// A. Setup Variables
+
 	const uploadLog = log ?? createLogger({ debug: process.env.DEBUG === '1', prefix: 'uploadToPayload' });
 
 	const sizeMb = (buffer.length / 1024 / 1024).toFixed(2);
-	uploadLog('info', 'uploadToPayload: start', { contentType, filename, size: buffer.length, sizeMb: `${sizeMb} MB` });
+	uploadLog('info', 'Uploading to Payload', { contentType, filename, size: buffer.length, sizeMb: `${sizeMb} MB` });
 
 	try {
 		const form = new FormData();
 		const file = new File([new Uint8Array(buffer)], filename, { type: contentType });
 		form.append('file', file);
 		const headers: Record<string, string> = {};
-		const auth = payloadAuthHeader();
+		const auth = getPayloadAuthHeaderSync();
 		if (auth) {
 			headers['Authorization'] = auth;
 		} else {
 			uploadLog('warn', 'uploadToPayload: no auth header (PAYLOAD_API_KEY not set or .env not loaded)');
 		}
-		const base = PAYLOAD_URL.replace(/\/$/, '');
+		const base = process.env.PAYLOAD_URL?.replace(/\/$/, '') ?? '';
 		const apiPath = process.env.PAYLOAD_API_PATH ?? '/admin/api';
 		const url = `${base}${apiPath}/media`;
 		uploadLog('debug', 'uploadToPayload: POST', {

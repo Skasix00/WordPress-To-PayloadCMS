@@ -3,8 +3,8 @@
 import type { LogFn } from '@/types';
 
 import { CreateNewsInPayloadResult, CreateNewsPayload } from '@/types';
+import { getPayloadAuthHeaderSync } from '@/utils';
 import { createLogger } from '@/utils/logger';
-import { payloadAuthHeader } from '@/utils/uploadToPayload';
 import process from 'node:process';
 
 /* * */
@@ -26,11 +26,8 @@ export async function createNewsInPayload(data: CreateNewsPayload, log?: LogFn):
 		const slug = process.env.PAYLOAD_NEWS_SLUG ?? 'news';
 		const url = `${base}${apiPath}/${slug}`;
 
-		const auth = payloadAuthHeader();
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/json',
-			...(auth && { Authorization: auth }),
-		};
+		const auth = getPayloadAuthHeaderSync();
+		const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(auth && { Authorization: auth }) };
 
 		createLog('debug', 'createNewsInPayload: POST', { title: data.title, url });
 

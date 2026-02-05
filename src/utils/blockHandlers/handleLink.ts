@@ -1,6 +1,6 @@
 /* * */
 
-import type { BlockHandlerContext } from './types';
+import type { BlockHandlerContext } from '@/types';
 import type { LexicalNode } from '@/types';
 
 import { paragraphNode, payloadLinkBlockNode } from '@/components';
