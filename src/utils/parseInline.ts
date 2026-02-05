@@ -1,9 +1,9 @@
 /* * */
 
-import { linebreakNode, linkNode, mentionNode } from '@/components';
+import { linebreakNode, mentionNode } from '@/components';
 import { NODE_TYPE, TEXT_FORMAT } from '@/config/consts';
 import { LexicalNode, LogFn } from '@/types';
-import { applyFormat, asElement, flattenInlineChildren, getNodeType, hasTextContent, normalizeText, parseLineMentionFromText, parseTextIntoNodesWithMentions, resolveUrl } from '@/utils';
+import { applyFormat, applyStyle, asElement, flattenInlineChildren, getNodeType, hasTextContent, normalizeText, parseBackgroundColorFromStyle, parseLineMentionFromText, parseTextIntoNodesWithMentions, resolveUrl } from '@/utils';
 
 /* * */
 
@@ -59,6 +59,17 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 	if (tag === 'code') {
 		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		applyFormat(out, TEXT_FORMAT.CODE);
+		return out;
+	}
+
+	if (tag === 'mark') {
+		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+		const styleAttr = el.getAttribute('style');
+		const bgStyle = parseBackgroundColorFromStyle(styleAttr);
+		if (bgStyle) {
+			applyStyle(out, bgStyle);
+			log?.('debug', 'inline: <mark> -> background', { style: bgStyle });
+		}
 		return out;
 	}
 

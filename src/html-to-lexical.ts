@@ -14,6 +14,11 @@ import { JSDOM } from 'jsdom';
 
 /* * */
 
+function addPaddingTop(node: LexicalNode, px = 20): void {
+	const existing = (node.style ?? '').trim();
+	node.style = existing ? `${existing}; padding-top: ${px}px` : `padding-top: ${px}px`;
+}
+
 export function htmlToLexical(html: string, options?: Options) {
 	//
 
@@ -162,7 +167,14 @@ export function htmlToLexical(html: string, options?: Options) {
 	}
 
 	//
-	// C. Return
+	// C. Transform Nodes
+
+	for (let i = 1; i < children.length; i += 1) {
+		addPaddingTop(children[i]);
+	}
+
+	//
+	// D. Return
 
 	return {
 		root: {
