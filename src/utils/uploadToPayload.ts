@@ -3,7 +3,7 @@
 import type { LogFn } from '@/types';
 
 import { getPayloadAuthHeaderSync } from '@/utils';
-import { createLogger } from '@/utils/logger';
+import { createLogger } from '@/utils';
 import path from 'node:path';
 import process from 'node:process';
 

@@ -10,7 +10,7 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 	//
 
 	//
-	// A. Setup Variables
+	// B. Setup Variables
 
 	const { imagesDir, limit, log, urls } = options;
 	const saved: string[] = [];
@@ -20,7 +20,7 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 	const max = limit !== undefined ? Math.min(limit, urls.length) : urls.length;
 
 	//
-	// B. Process Images
+	// C. Process Images
 
 	for (const [index, url] of urls.slice(0, max).entries()) {
 		if (!url) continue;
@@ -40,7 +40,10 @@ export async function fetchNewsImages(options: FetchNewsImagesOptions): Promise<
 	}
 
 	//
-	// C. Return
+	// D. Return
+
+	if (!options?.urls || !Array.isArray(options.urls)) throw new Error('fetchNewsImages: urls must be an array');
+	if (!options?.imagesDir?.trim()) throw new Error('fetchNewsImages: imagesDir is required');
 
 	return { saved, urlToPayloadMedia, urlToPayloadMediaDoc, urlToPayloadMediaId };
 

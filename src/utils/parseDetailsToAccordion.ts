@@ -3,9 +3,7 @@
 import type { LexicalNode, LogFn } from '@/types';
 
 import { payloadBlockNode } from '@/components';
-import { asElement } from '@/utils/asElement';
-import { buildAccordionLexicalContent } from '@/utils/buildAccordionLexicalContent';
-import { normalizeText } from '@/utils/normalizeText';
+import { asElement, buildAccordionLexicalContent, normalizeText } from '@/utils';
 
 /* * */
 

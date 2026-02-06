@@ -8,21 +8,35 @@ export async function fetchWordpressNews(url: string): Promise<WordpressNews[]> 
 	//
 
 	//
-	// A. Fetch Data
+	// A. Setup Variables
 
-	const res = await fetch(url);
-
-	//
-	// B. Transform Data
-
-	const data = (await res.json()) as unknown;
+	let res: Response;
+	let data: unknown;
 
 	//
-	// C. Return
+	// B. Fetch Data
 
-	if (!res.ok) throw new Error(`Failed to fetch WP news (${res.status})`);
+	if (!url?.trim()) throw new Error('fetchWordpressNews: URL is required');
 
-	if (!Array.isArray(data)) throw new Error('WP news response is not an array');
+	try {
+		res = await fetch(url);
+	} catch (err) {
+		throw new Error(`fetchWordpressNews: Network error: ${err instanceof Error ? err.message : String(err)}`);
+	}
+
+	if (!res.ok) throw new Error(`fetchWordpressNews: Failed to fetch (${res.status}): ${res.statusText}`);
+
+	//
+	// C. Parse Response
+
+	try {
+		data = await res.json();
+	} catch (err) {
+		throw new Error(`fetchWordpressNews: Invalid JSON response: ${err instanceof Error ? err.message : String(err)}`);
+	}
+
+	//
+	// D. Return
 
 	return data as WordpressNews[];
 

@@ -4,11 +4,7 @@ import type { BlockHandlerContext } from '@/types';
 import type { LexicalNode } from '@/types';
 
 import { paragraphNode, payloadLinkBlockNode } from '@/components';
-import { hasMeaningfulInline } from '@/utils/hasMeaningfulInline';
-import { isValidHttpUrl } from '@/utils/isValidHttpUrl';
-import { normalizeText } from '@/utils/normalizeText';
-import { parseInline } from '@/utils/parseInline';
-import { resolveUrl } from '@/utils/resolveUrl';
+import { hasMeaningfulInline, isValidHttpUrl, normalizeText, parseInline, resolveUrl } from '@/utils';
 
 /* * */
 

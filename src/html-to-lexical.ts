@@ -5,16 +5,12 @@ import type { LexicalNode } from '@/types';
 import { headingNode, horizontalRuleNode, linebreakNode, paragraphNode } from '@/components';
 import { NODE_TYPE } from '@/config/consts';
 import { Options } from '@/types/Options';
-import { asElement, countVisualBreaksFromWhitespace, findNextNonIgnorableNodeIndex, getNodeType, hasMeaningfulInline, hasTextContent, isWhitespaceOnlyText, isWordPressSpacer, normalizeText, parseInline, parseList, spacerToBreakCount } from '@/utils';
-import { handleDiv } from '@/utils/blockHandlers/handleDiv';
-import { handleFigure } from '@/utils/blockHandlers/handleFigure';
-import { handleLink } from '@/utils/blockHandlers/handleLink';
-import { parseDetailsToAccordion } from '@/utils/parseDetailsToAccordion';
+import { asElement, countVisualBreaksFromWhitespace, findNextNonIgnorableNodeIndex, getNodeType, handleDiv, handleFigure, handleLink, hasMeaningfulInline, hasTextContent, isWhitespaceOnlyText, isWordPressSpacer, normalizeText, parseDetailsToAccordion, parseInline, parseList, spacerToBreakCount } from '@/utils';
 import { JSDOM } from 'jsdom';
 
 /* * */
 
-function addPaddingTop(node: LexicalNode, px = 20): void {
+function addPaddingTop(node: LexicalNode, px: number): void {
 	const existing = (node.style ?? '').trim();
 	node.style = existing ? `${existing}; padding-top: ${px}px` : `padding-top: ${px}px`;
 }
@@ -28,6 +24,7 @@ export function htmlToLexical(html: string, options?: Options) {
 	const log = options?.log;
 	const baseOrigin = options?.baseOrigin ?? '';
 	const collectImageUrl = options?.collectImageUrl;
+	const paddingTopPx = options?.paddingTopPx ?? 20;
 	const urlToMediaDoc = options?.urlToMediaDoc;
 	const dom = new JSDOM(html);
 	const document = dom.window.document;
@@ -170,7 +167,7 @@ export function htmlToLexical(html: string, options?: Options) {
 	// C. Transform Nodes
 
 	for (let i = 1; i < children.length; i += 1) {
-		addPaddingTop(children[i]);
+		addPaddingTop(children[i], paddingTopPx);
 	}
 
 	//

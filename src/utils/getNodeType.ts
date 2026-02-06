@@ -1,6 +1,6 @@
 /* * */
 
-import { hasNodeType } from '@/utils/hasNodeType';
+import { hasNodeType } from '@/utils';
 
 /* * */
 

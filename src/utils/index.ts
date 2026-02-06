@@ -5,7 +5,7 @@ export * from './buildAccordionLexicalContent';
 export * from './clampInt';
 export * from './countVisualBreaksFromWhitespace';
 export * from './createNewsInPayload';
-export * from './cssLengthToAproxPx';
+export * from './cssLengthToApproxPx';
 export * from './fetchNewsImages';
 export * from './fetchWordpress';
 export * from './fileNameFromUrl';

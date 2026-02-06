@@ -3,8 +3,7 @@
 import type { DomElement } from '@/types';
 
 import { NODE_TYPE } from '@/config/consts';
-import { getNodeType } from '@/utils/getNodeType';
-import { isRecord } from '@/utils/isRecord';
+import { getNodeType, isRecord } from '@/utils';
 
 /* * */
 

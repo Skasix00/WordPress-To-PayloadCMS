@@ -4,8 +4,7 @@ import type { BlockHandlerContext } from '@/types';
 import type { LexicalNode } from '@/types';
 
 import { payloadBlockNode, payloadUploadNode } from '@/components';
-import { asElement } from '@/utils/asElement';
-import { resolveUrl } from '@/utils/resolveUrl';
+import { asElement, resolveUrl } from '@/utils';
 
 /* * */
 

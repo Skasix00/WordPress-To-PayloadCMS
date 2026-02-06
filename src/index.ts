@@ -2,8 +2,7 @@
 
 import 'dotenv/config';
 import { htmlToLexical } from '@/html-to-lexical';
-import { createLogger, createNewsInPayload, fetchNewsImages, fetchWordpressNews, isoNow, makeSummaryFromTitleAndText, safeFilePart } from '@/utils';
-import { resolveCoverUrl } from '@/utils';
+import { createLogger, createNewsInPayload, fetchNewsImages, fetchWordpressNews, isoNow, makeSummaryFromTitleAndText, resolveCoverUrl, safeFilePart } from '@/utils';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -32,6 +31,7 @@ async function run() {
 	log.section('WP → Payload (Lexical) Export (.txt)');
 	log('info', 'config', { limitNews, outputDir, wpUrl });
 
+	if (!wpUrl?.trim()) throw new Error('WP_NEWS_URL environment variable is required');
 	const items = await fetchWordpressNews(wpUrl);
 	log('info', 'wp: fetched', { count: items.length });
 

@@ -1,7 +1,7 @@
 /* * */
 
 import { DomElement, LexicalNode, LogFn } from '@/types';
-import { parseInline } from '@/utils/parseInline';
+import { parseInline } from '@/utils';
 
 /* * */
 

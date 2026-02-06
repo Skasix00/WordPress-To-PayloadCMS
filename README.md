@@ -24,6 +24,16 @@ Import WordPress news into Payload CMS lexical format. Fetches news from a WordP
 npm install
 ```
 
+## Environment variables
+
+Create a `.env` file in the project root:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `WP_NEWS_URL` | Yes | WordPress REST API URL for news |
+| `LIMIT_NEWS` | No | Limit number of news items to process (e.g. `5`) |
+| `DEBUG` | No | Set to `1` to enable debug logging |
+
 ## Usage
 
 ```bash
@@ -73,4 +83,4 @@ npm run build
 | `<a>` (mention pattern) | Mention |
 | `@mention` in text | Mention |
 
-You need to provide your own .env variables, payload uses a key system for authentication, but you need to activate it first on your own PayloadCMS instance.
+**Payload uses a key system for authentication; activate it on your Payload CMS instance.**

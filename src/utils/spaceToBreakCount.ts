@@ -1,7 +1,7 @@
 /* * */
 import type { CssLength, DomElement } from '@/types';
 
-import { clampInt, cssLengthToApproxPx, parseCssHeightFromStyle } from '@/utils/';
+import { clampInt, cssLengthToApproxPx, parseCssHeightFromStyle } from '@/utils';
 
 /* * */
 
@@ -9,7 +9,7 @@ export function spacerToBreakCount(el: DomElement): { breaks: number, height?: C
 	//
 
 	//
-	// A. Fetch Data
+	// A.Setup Variables
 
 	const style = el.getAttribute('style') ?? '';
 	const height = parseCssHeightFromStyle(style);

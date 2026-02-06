@@ -4,7 +4,7 @@ import type { LogFn } from '@/types';
 
 import { CreateNewsInPayloadResult, CreateNewsPayload } from '@/types';
 import { getPayloadAuthHeaderSync } from '@/utils';
-import { createLogger } from '@/utils/logger';
+import { createLogger } from '@/utils';
 import process from 'node:process';
 
 /* * */

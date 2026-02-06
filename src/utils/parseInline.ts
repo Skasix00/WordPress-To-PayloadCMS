@@ -7,6 +7,12 @@ import { applyFormat, applyStyle, asElement, flattenInlineChildren, getNodeType,
 
 /* * */
 
+function withFormat(el: Element, inheritedFormat: number, format: number, log?: LogFn, baseOrigin = ''): LexicalNode[] {
+	const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+	applyFormat(out, format);
+	return out;
+}
+
 export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, baseOrigin = ''): LexicalNode[] {
 	//
 
@@ -14,6 +20,8 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 	// A. Setup Variables
 
 	const nodeType = getNodeType(node);
+	const el = asElement(node);
+	const tag = el.tagName.toLowerCase();
 
 	//
 	// B. Transform Data
@@ -22,45 +30,25 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 		return parseTextIntoNodesWithMentions(String(node.textContent ?? ''), inheritedFormat, log);
 	}
 
-	const el = asElement(node);
-	if (!el) return [];
+	//
+	// C. Return
 
-	const tag = el.tagName.toLowerCase();
+	if (!el) return [];
 
 	if (tag === 'br') {
 		log?.('debug', 'inline: <br> -> linebreak');
 		return [linebreakNode()];
 	}
 
-	if (tag === 'strong' || tag === 'b') {
-		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
-		applyFormat(out, TEXT_FORMAT.BOLD);
-		return out;
-	}
+	if (tag === 'strong' || tag === 'b') return withFormat(el, inheritedFormat, TEXT_FORMAT.BOLD, log, baseOrigin);
 
-	if (tag === 'em' || tag === 'i') {
-		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
-		applyFormat(out, TEXT_FORMAT.ITALIC);
-		return out;
-	}
+	if (tag === 'em' || tag === 'i') return withFormat(el, inheritedFormat, TEXT_FORMAT.ITALIC, log, baseOrigin);
 
-	if (tag === 'u') {
-		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
-		applyFormat(out, TEXT_FORMAT.UNDERLINE);
-		return out;
-	}
+	if (tag === 'u') return withFormat(el, inheritedFormat, TEXT_FORMAT.UNDERLINE, log, baseOrigin);
 
-	if (tag === 's' || tag === 'del' || tag === 'strike') {
-		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
-		applyFormat(out, TEXT_FORMAT.STRIKETHROUGH);
-		return out;
-	}
+	if (tag === 's' || tag === 'del' || tag === 'strike') return withFormat(el, inheritedFormat, TEXT_FORMAT.STRIKETHROUGH, log, baseOrigin);
 
-	if (tag === 'code') {
-		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
-		applyFormat(out, TEXT_FORMAT.CODE);
-		return out;
-	}
+	if (tag === 'code') return withFormat(el, inheritedFormat, TEXT_FORMAT.CODE, log, baseOrigin);
 
 	if (tag === 'mark') {
 		const out = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
@@ -74,7 +62,6 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 	}
 
 	if (tag === 'a') {
-		// Links are not coming with href. Only parse text for mention.
 		const linkText = normalizeText(el.textContent ?? '').trim();
 
 		const parsed = parseLineMentionFromText(linkText);
@@ -105,8 +92,7 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 		return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 	}
 
-	//
-	// C. Return
-
 	return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+
+	//
 }
