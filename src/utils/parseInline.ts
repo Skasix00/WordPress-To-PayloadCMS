@@ -20,20 +20,18 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 	// A. Setup Variables
 
 	const nodeType = getNodeType(node);
-	const el = asElement(node);
-	const tag = el.tagName.toLowerCase();
-
-	//
-	// B. Transform Data
 
 	if (nodeType === NODE_TYPE.TEXT && hasTextContent(node)) {
 		return parseTextIntoNodesWithMentions(String(node.textContent ?? ''), inheritedFormat, log);
 	}
 
-	//
-	// C. Return
-
+	const el = asElement(node);
 	if (!el) return [];
+
+	const tag = el.tagName.toLowerCase();
+
+	//
+	// B. Transform Data
 
 	if (tag === 'br') {
 		log?.('debug', 'inline: <br> -> linebreak');

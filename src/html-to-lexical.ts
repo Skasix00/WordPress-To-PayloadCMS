@@ -2,18 +2,15 @@
 
 import type { LexicalNode } from '@/types';
 
-import { headingNode, horizontalRuleNode, linebreakNode, paragraphNode } from '@/components';
+import { headingNode, horizontalRuleNode, paragraphNode } from '@/components';
 import { NODE_TYPE } from '@/config/consts';
 import { Options } from '@/types/Options';
-import { asElement, countVisualBreaksFromWhitespace, findNextNonIgnorableNodeIndex, getNodeType, handleDiv, handleFigure, handleLink, hasMeaningfulInline, hasTextContent, isWhitespaceOnlyText, isWordPressSpacer, normalizeText, parseDetailsToAccordion, parseInline, parseList, spacerToBreakCount } from '@/utils';
+import { addPaddingBottom, addPaddingTop, asElement, countVisualBreaksFromWhitespace, findNextNonIgnorableNodeIndex, getNodeType, handleDiv, handleFigure, handleLink, hasMeaningfulInline, hasTextContent, isWhitespaceOnlyText, isWordPressSpacer, normalizeText, parseDetailsToAccordion, parseInline, parseList } from '@/utils';
 import { JSDOM } from 'jsdom';
 
 /* * */
 
-function addPaddingTop(node: LexicalNode, px: number): void {
-	const existing = (node.style ?? '').trim();
-	node.style = existing ? `${existing}; padding-top: ${px}px` : `padding-top: ${px}px`;
-}
+const SPACER_PADDING_PX = 20;
 
 export function htmlToLexical(html: string, options?: Options) {
 	//
@@ -53,10 +50,8 @@ export function htmlToLexical(html: string, options?: Options) {
 
 				const breaks = countVisualBreaksFromWhitespace(normalized);
 				if (breaks > 0) {
-					log?.('info', 'block: inter-block whitespace -> linebreaks', { breaks });
-					for (let i = 0; i < breaks; i += 1) {
-						children.push(paragraphNode([linebreakNode()]));
-					}
+					addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
+					log?.('info', 'block: inter-block whitespace -> padding', { breaks });
 				}
 
 				continue;
@@ -89,12 +84,11 @@ export function htmlToLexical(html: string, options?: Options) {
 			}
 		}
 
-		// Handle WordPress spacer
+		// Handle WordPress spacer -> padding on previous block
 		if (isWordPressSpacer(el)) {
-			const { breaks, height } = spacerToBreakCount(el);
-			log?.('info', 'block: wp spacer -> linebreaks', { breaks, height, style: el.getAttribute('style') ?? '' });
-			for (let i = 0; i < breaks; i += 1) {
-				children.push(paragraphNode([linebreakNode()]));
+			if (children.length > 0) {
+				addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
+				log?.('info', 'block: wp spacer -> padding', { style: el.getAttribute('style') ?? '' });
 			}
 			continue;
 		}
