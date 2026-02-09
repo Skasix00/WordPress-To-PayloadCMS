@@ -1,6 +1,6 @@
 /* * */
 
-import { linebreakNode, mentionNode } from '@/components';
+import { linebreakNode, linkNode, mentionNode, textNode } from '@/components';
 import { NODE_TYPE, TEXT_FORMAT } from '@/config/consts';
 import { LexicalNode, LogFn } from '@/types';
 import { applyFormat, applyStyle, asElement, flattenInlineChildren, getNodeType, hasTextContent, normalizeText, parseBackgroundColorFromStyle, parseLineMentionFromText, parseTextIntoNodesWithMentions, resolveUrl } from '@/utils';
@@ -85,9 +85,14 @@ export function parseInline(node: unknown, inheritedFormat = 0, log?: LogFn, bas
 			log?.('debug', 'inline: <a> skipped (URL parse error)', { href, resolvedUrl: trimmedResolved });
 			return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
 		}
-		log?.('debug', 'inline: <a> -> text (Payload does not support inline links)', { href, resolvedUrl: trimmedResolved, text: linkText });
 
-		return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+		const children = flattenInlineChildren(el, inheritedFormat, log, baseOrigin);
+		if (children.length === 0) {
+			children.push(textNode(linkText || trimmedResolved, inheritedFormat));
+		}
+		const newTab = el.getAttribute('target') === '_blank';
+		log?.('debug', 'inline: <a> -> link', { href: trimmedResolved, text: linkText });
+		return [linkNode(trimmedResolved, children, newTab)];
 	}
 
 	return flattenInlineChildren(el, inheritedFormat, log, baseOrigin);

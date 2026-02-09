@@ -3,18 +3,15 @@
 import { LexicalNode } from '@/types';
 
 /* * */
-export function linkNode(url: string, children: LexicalNode[]): LexicalNode {
+
+export function linkNode(url: string, children: LexicalNode[], newTab = false): LexicalNode {
 	//
 
 	//
 	// A. Setup Variables
 
 	const trimmedUrl = url?.trim() ?? '';
-	const validUrl = trimmedUrl && /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : '';
-
-	if (!validUrl) {
-		throw new Error(`linkNode: Invalid or empty URL provided: "${url}"`);
-	}
+	const validUrl = trimmedUrl && /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : 'https://www.carrismetropolitana.pt';
 
 	//
 	// B. Return
@@ -22,13 +19,10 @@ export function linkNode(url: string, children: LexicalNode[]): LexicalNode {
 	return {
 		children,
 		direction: 'ltr',
+		fields: { linkType: 'custom', newTab, url: validUrl },
 		format: '',
 		indent: 0,
-		rel: 'noreferrer',
-		target: null,
-		title: null,
 		type: 'link',
-		url: validUrl,
 		version: 1,
 	};
 
