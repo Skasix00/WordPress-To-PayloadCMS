@@ -1,5 +1,6 @@
 **ACTIVE DEVELOPMENT**
 
+This is a Gutenberg editor to lexical rich text editor converter.
 
 Import WordPress news into Payload CMS lexical format. Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, optionally uploads them to Payload, and exports each item into a output folder.
 
@@ -28,11 +29,25 @@ npm install
 
 Create a `.env` file in the project root:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `WP_NEWS_URL` | Yes | WordPress REST API URL for news |
-| `LIMIT_NEWS` | No | Limit number of news items to process (e.g. `5`) |
-| `DEBUG` | No | Set to `1` to enable debug logging |
+```bash
+# WordPress
+WP_NEWS_URL=<yourwordpressurl>
+
+# Payload
+PAYLOAD_URL=<yourpayloadurl>
+PAYLOAD_NEWS_SLUG=<younwewsslug>
+PAYLOAD_API_KEY=<<youruserkey>
+PAYLOAD_API_PATH=<yourpayloadapipath>
+
+# Other
+
+LIMIT_NEWS=1000
+```
+**You can toggle debug on package.json scripts section**
+
+```bash 
+  --->  "start": "npm run build && DEBUG=1 tsx src/index.ts"
+```
 
 ## Usage
 
