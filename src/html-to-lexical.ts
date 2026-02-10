@@ -5,12 +5,10 @@ import type { LexicalNode } from '@/types';
 import { headingNode, horizontalRuleNode, paragraphNode } from '@/components';
 import { NODE_TYPE } from '@/config/consts';
 import { Options } from '@/types/Options';
-import { addPaddingBottom, addPaddingTop, asElement, countVisualBreaksFromWhitespace, findNextNonIgnorableNodeIndex, getNodeType, handleDiv, handleFigure, handleLink, hasMeaningfulInline, hasTextContent, isWhitespaceOnlyText, isWordPressSpacer, normalizeText, parseDetailsToAccordion, parseInline, parseList } from '@/utils';
+import { asElement, countVisualBreaksFromWhitespace, findNextNonIgnorableNodeIndex, getNodeType, handleDiv, handleFigure, handleLink, hasMeaningfulInline, hasTextContent, isWhitespaceOnlyText, isWordPressSpacer, normalizeText, parseDetailsToAccordion, parseInline, parseList } from '@/utils';
 import { JSDOM } from 'jsdom';
 
 /* * */
-
-const SPACER_PADDING_PX = 20;
 
 export function htmlToLexical(html: string, options?: Options) {
 	//
@@ -21,7 +19,6 @@ export function htmlToLexical(html: string, options?: Options) {
 	const log = options?.log;
 	const baseOrigin = options?.baseOrigin ?? '';
 	const collectImageUrl = options?.collectImageUrl;
-	const paddingTopPx = options?.paddingTopPx ?? 20;
 	const urlToMediaDoc = options?.urlToMediaDoc;
 	const dom = new JSDOM(html);
 	const document = dom.window.document;
@@ -50,7 +47,7 @@ export function htmlToLexical(html: string, options?: Options) {
 
 				const breaks = countVisualBreaksFromWhitespace(normalized);
 				if (breaks > 0) {
-					addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
+					// addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
 					log?.('info', 'block: inter-block whitespace -> padding', { breaks });
 				}
 
@@ -87,7 +84,7 @@ export function htmlToLexical(html: string, options?: Options) {
 		// Handle WordPress spacer -> padding on previous block
 		if (isWordPressSpacer(el)) {
 			if (children.length > 0) {
-				addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
+				// addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
 				log?.('info', 'block: wp spacer -> padding', { style: el.getAttribute('style') ?? '' });
 			}
 			continue;
@@ -155,13 +152,6 @@ export function htmlToLexical(html: string, options?: Options) {
 		// Fallback: parse as inline content
 		const inline = parseInline(el, 0, log, baseOrigin);
 		if (hasMeaningfulInline(inline)) children.push(paragraphNode(inline));
-	}
-
-	//
-	// C. Transform Nodes
-
-	for (let i = 1; i < children.length; i += 1) {
-		addPaddingTop(children[i], paddingTopPx);
 	}
 
 	//
