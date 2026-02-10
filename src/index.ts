@@ -77,7 +77,7 @@ async function run() {
 		});
 
 		const featured_image = coverUrl ? urlToPayloadMediaId[coverUrl] : null;
-		const payload = { body, featured_image, publishedAt, summary, title: item.title, updatedAt };
+		const payload = { _status: 'published' as const, body, featured_image, publishedAt, summary, title: item.title, updatedAt };
 
 		// Save to file
 		const filename = path.join(outputDir, `news-${item._id}-${safeFilePart(item.title)}.txt`);

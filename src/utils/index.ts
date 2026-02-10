@@ -1,5 +1,3 @@
-export * from './addPaddingBottom';
-export * from './addPaddingTop';
 export * from './applyFormat';
 export * from './asElement';
 export * from './blockHandlers';

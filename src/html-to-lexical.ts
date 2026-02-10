@@ -47,7 +47,6 @@ export function htmlToLexical(html: string, options?: Options) {
 
 				const breaks = countVisualBreaksFromWhitespace(normalized);
 				if (breaks > 0) {
-					// addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
 					log?.('info', 'block: inter-block whitespace -> padding', { breaks });
 				}
 
@@ -84,7 +83,6 @@ export function htmlToLexical(html: string, options?: Options) {
 		// Handle WordPress spacer -> padding on previous block
 		if (isWordPressSpacer(el)) {
 			if (children.length > 0) {
-				// addPaddingBottom(children[children.length - 1], SPACER_PADDING_PX);
 				log?.('info', 'block: wp spacer -> padding', { style: el.getAttribute('style') ?? '' });
 			}
 			continue;
