@@ -2,7 +2,8 @@
 
 This is a Gutenberg editor to lexical rich text editor converter.
 
-Import WordPress news into Payload CMS lexical format. Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, optionally uploads them to Payload, and exports each item into a output folder.
+Import WordPress news into Payload CMS lexical format. 
+Fetches news from a WordPress API, converts HTML content to [Lexical](https://lexical.dev/) rich text, downloads images, uploads this items to Payload, and exports each item into a output folder.
 
 ## What it does
 
@@ -98,4 +99,4 @@ npm run build
 | `<a>` (mention pattern) | Mention |
 | `@mention` in text | Mention |
 
-**Payload uses a key system for authentication; activate it on your Payload CMS instance.**
+**Payload uses a key system for authentication; activate it on your Payload CMS instance, then activate it on your user and use that key**
