@@ -4,6 +4,10 @@ import { WordpressNews } from '@/types';
 
 /* * */
 
+interface WordpressNewsApiResponse {
+	data?: unknown
+}
+
 export async function fetchWordpressNews(url: string): Promise<WordpressNews[]> {
 	//
 
@@ -36,9 +40,27 @@ export async function fetchWordpressNews(url: string): Promise<WordpressNews[]> 
 	}
 
 	//
-	// D. Return
+	// D. Normalise Shape
 
-	return data as WordpressNews[];
+	let items: unknown;
+
+	// Support both `[ ... ]` and `{ data: [ ... ] }` shapes
+	if (Array.isArray(data)) {
+		items = data;
+	} else if (data && typeof data === 'object' && 'data' in (data as WordpressNewsApiResponse)) {
+		items = (data as WordpressNewsApiResponse).data;
+	} else {
+		throw new Error('fetchWordpressNews: Unexpected response shape (expected array or { data })');
+	}
+
+	if (!Array.isArray(items)) {
+		throw new Error('fetchWordpressNews: Expected "data" to be an array');
+	}
+
+	//
+	// E. Return
+
+	return items as WordpressNews[];
 
 	//
 }
